@@ -92,7 +92,7 @@ for n in nodes_g:
             export_path_to_shp(path, "true", 'Name', r"1993", G2)
             i += 1
             if i >= 2:
-                final = pd.concat(['edges.shp', r'1993\edges.shp'])
+                final = gpd.concat(['edges.shp', r'1993\edges.shp'])
             else:
                 graph = nx.Graph()
                 nx.write_shp(graph, output)
