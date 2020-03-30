@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, Any
+#from typing import Dict, Any
 
 import networkx as nx
 import nx_multi_shp
@@ -44,7 +44,7 @@ def convert_shp_to_graph(input_shp, directed, multigraph, parallel_edges_attribu
 
 
 def export_path_to_shp(path_dict, multy, multy_attribute, output_workspace, G):
-    for edge in G.edges():
+    for edge in G.edges(keys=True):
         for node in path_dict:
             path_edges = []
             path_list = path_dict[node]
@@ -55,16 +55,18 @@ def export_path_to_shp(path_dict, multy, multy_attribute, output_workspace, G):
                 elif tuple([tuple(path_list[i + 1]), tuple(path_list[i])]) == tuple(edge):
                     path_edges.append(edge)
             new_graph = nx.MultiGraph()
-            for edge in G.edges():
-                if (edge[0], edge[1]) in path_edges:
-                    new_graph.add_edge(edge[0], edge[1])
+            if (edge[0], edge[1]) in path_edges:
+                new_graph.add_edge(edge[0], edge[1], key='Name')
+                print(edge)
             if multy == 'true':
                 nx_multi_shp.write_shp(new_graph, multy_attribute, output_workspace)
             else:
                 nx.write_shp(new_graph, output_workspace)
 
 
-os.chdir(r"D:\Projects\diploma\model")
+output = r"D:\GitHub\elec_centrality"
+#output = r"D:\Projects\diploma\model"
+os.chdir(output)
 G1 = nx.read_shp(r"_1993_points.shp")
 G1 = G1.to_undirected()
 dictionary_a = {}
@@ -79,18 +81,20 @@ nx.set_node_attributes(G2, dictionary_a, 'type')
 nodes_g = nx.nodes(G2)
 list = []
 dict = {}
-i=0
+i = 0
 for n in nodes_g:
     t = nx.get_node_attributes(G2, 'type')
     if n in t:
         if t[n] == 'ЭС':
             list.append(n)
             path = nx.multi_source_dijkstra_path(G2, {n})
-            print (path)
-            shp=export_path_to_shp(path, "false", 'Name', r"1993", G2)
-            i+=1
+            print(path)
+            export_path_to_shp(path, "true", 'Name', r"1993", G2)
+            i += 1
             if i >= 2:
-                final = pd.concat([test,shp])
-            test=shp.to_file('test.shp')
+                final = pd.concat(['edges.shp', r'1993\edges.shp'])
+            else:
+                graph = nx.Graph()
+                nx.write_shp(graph, output)
 
 

@@ -321,11 +321,6 @@ def write_shp(G, unique_attribute, outdir):
 
     for edge in G.edges(data=True):
         key = edge[2][unique_attribute]
-        print(edge[0])
-        print(edge[1])
-        print(key)
-        print(edge[2]['Name'])
-
         data = G.get_edge_data(edge[0], edge[1], key)
         g = netgeometry(edge, data)
         attributes, edges = create_attributes(edge[2], edge_fields, edges)
