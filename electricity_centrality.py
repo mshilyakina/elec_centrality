@@ -5,6 +5,7 @@ import networkx as nx
 import nx_multi_shp
 import os
 import geopandas as gpd
+import pandas as pd
 
 
 #Hello world
@@ -65,7 +66,7 @@ def export_path_to_shp(path_dict, multy, multy_attribute, output_workspace, G):
 
 
 output = r"D:\GitHub\elec_centrality"
-#output = r"D:\Projects\diploma\model"
+#output = r"D:\Projects\diploma\github\elec_centrality"
 os.chdir(output)
 G1 = nx.read_shp(r"_1993_points.shp")
 G1 = G1.to_undirected()
@@ -80,21 +81,19 @@ G2 = convert_shp_to_graph("_1993_lines.shp", "false", "true", "Name")
 nx.set_node_attributes(G2, dictionary_a, 'type')
 nodes_g = nx.nodes(G2)
 list = []
-dict = {}
 i = 0
 for n in nodes_g:
     t = nx.get_node_attributes(G2, 'type')
     if n in t:
         if t[n] == 'ЭС':
-            list.append(n)
             path = nx.multi_source_dijkstra_path(G2, {n})
-            print(path)
             export_path_to_shp(path, "true", 'Name', r"1993", G2)
-            i += 1
-            if i >= 2:
-                final = gpd.concat(['edges.shp', r'1993\edges.shp'])
-            else:
-                graph = nx.Graph()
-                nx.write_shp(graph, output)
+            i+=1
+            os.rename(r'1993\edges.shp',r'1993\edges'+str(i)+'.shp')
+            list.append(gpd.read_file(r'1993\edges'+str(i)+'.shp'))
+final = pd.concat(list)
+            #else:
+                #graph = nx.Graph()
+                #nx.write_shp(graph, output)
 
 
