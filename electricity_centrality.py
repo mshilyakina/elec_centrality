@@ -4,8 +4,7 @@
 import networkx as nx
 import nx_multi_shp
 import os
-import geopandas as gpd
-import pandas as pd
+
 
 
 def convert_shp_to_graph(input_shp, directed, multigraph, parallel_edges_attribute):
@@ -67,8 +66,8 @@ def export_path_to_shp(path_dict, multy, multy_attribute, output_workspace, G):
         nx.write_shp(new_graph, output_workspace)
 
 
-output = r"D:\GitHub\elec_centrality"
-#output = r"D:\Projects\diploma\github\elec_centrality"
+#output = r"D:\GitHub\elec_centrality"
+output = r"D:\Projects\diploma\github\elec_centrality"
 os.chdir(output)
 G1 = nx.read_shp(r"_1993_points.shp")
 G1 = G1.to_undirected()
@@ -82,26 +81,17 @@ for node1 in nodes_a:
 G2 = convert_shp_to_graph("_1993_lines.shp", "false", "true", "Name")
 nx.set_node_attributes(G2, dictionary_a, 'type')
 nodes_g = nx.nodes(G2)
-list = []
+gen = set()
 i = 0
 node_dict = nx.get_node_attributes(G2, 'type')
 for node in nodes_g:
     if node in node_dict:
         if node_dict[node] == 'ЭС':
             print(node, ' is generation')
-            path = nx.multi_source_dijkstra_path(G2, {node})
-            print(path)
-            export_path_to_shp(path, "true", 'Name', r"1993", G2)
-            #i+=1
-            #os.rename(r'1993\edges.shp',r'1993\edges{}.shp'.format(i))
-            #os.rename(r'1993\edges.shx',r'1993\edges{}.shx'.format(i))
-            #os.rename(r'1993\edges.dbf',r'1993\edges{}.dbf'.format(i))
-            #list.append(gpd.read_file(r'1993\edges{}.shp'.format(i)))
-#final = pd.concat(list)
-#print (list)
-#final.to_file(r"1993\final.shp")
-            #else:
-                #graph = nx.Graph()
-                #nx.write_shp(graph, output)
+            gen.add(node)
+path = nx.multi_source_dijkstra_path(G2, gen)
+print(path)
+export_path_to_shp(path, "true", 'Name', r"1993", G2)
+
 
 
