@@ -8,7 +8,6 @@ import geopandas as gpd
 import pandas as pd
 
 
-#Hello world
 def convert_shp_to_graph(input_shp, directed, multigraph, parallel_edges_attribute):
     """Converts a shapefile to networkx graph object in accordance to the given parameters.
         It can directed or undirected, simple graph or multigraph
@@ -45,24 +44,27 @@ def convert_shp_to_graph(input_shp, directed, multigraph, parallel_edges_attribu
 
 
 def export_path_to_shp(path_dict, multy, multy_attribute, output_workspace, G):
-    for edge in G.edges(keys=True):
-        for node in path_dict:
-            path_edges = []
-            path_list = path_dict[node]
-            path_list.insert(0, node)
+    new_graph = nx.MultiGraph()
+    a = 0
+    for node in path_dict:
+        path_list = path_dict[node]
+        path_list.insert(0, node)
+        b = 0
+        for edge in G.edges(keys=True):
+            c = 0
             for i in range(len(path_list) - 1):
-                if tuple([tuple(path_list[i]), tuple(path_list[i + 1])]) == tuple(edge):
-                    path_edges.append(edge)
-                elif tuple([tuple(path_list[i + 1]), tuple(path_list[i])]) == tuple(edge):
-                    path_edges.append(edge)
-            new_graph = nx.MultiGraph()
-            if (edge[0], edge[1]) in path_edges:
-                new_graph.add_edge(edge[0], edge[1], key='Name')
-                print(edge)
-            if multy == 'true':
-                nx_multi_shp.write_shp(new_graph, multy_attribute, output_workspace)
-            else:
-                nx.write_shp(new_graph, output_workspace)
+                identifier = str(a) + str(b) + str(c)
+                if tuple([tuple(path_list[i]), tuple(path_list[i + 1])]) == tuple([edge[0], edge[1]]):
+                    new_graph.add_edge(edge[0], edge[1], identifier, Name=edge[2], ident=identifier)
+                elif tuple([tuple(path_list[i + 1]), tuple(path_list[i])]) == tuple([edge[0], edge[1]]):
+                    new_graph.add_edge(edge[0], edge[1], identifier, Name=edge[2], ident=identifier)
+                c += 1
+            b += 1
+        a += 1
+    if multy == 'true':
+        nx_multi_shp.write_shp(new_graph, 'ident', output_workspace)
+    else:
+        nx.write_shp(new_graph, output_workspace)
 
 
 output = r"D:\GitHub\elec_centrality"
@@ -82,11 +84,13 @@ nx.set_node_attributes(G2, dictionary_a, 'type')
 nodes_g = nx.nodes(G2)
 list = []
 i = 0
-for n in nodes_g:
-    t = nx.get_node_attributes(G2, 'type')
-    if n in t:
-        if t[n] == 'ЭС':
-            path = nx.multi_source_dijkstra_path(G2, {n})
+node_dict = nx.get_node_attributes(G2, 'type')
+for node in nodes_g:
+    if node in node_dict:
+        if node_dict[node] == 'ЭС':
+            print(node, ' is generation')
+            path = nx.multi_source_dijkstra_path(G2, {node})
+            print(path)
             export_path_to_shp(path, "true", 'Name', r"1993", G2)
             #i+=1
             #os.rename(r'1993\edges.shp',r'1993\edges{}.shp'.format(i))
