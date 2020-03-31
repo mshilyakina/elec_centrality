@@ -88,10 +88,14 @@ for n in nodes_g:
         if t[n] == 'ЭС':
             path = nx.multi_source_dijkstra_path(G2, {n})
             export_path_to_shp(path, "true", 'Name', r"1993", G2)
-            i+=1
-            os.rename(r'1993\edges.shp',r'1993\edges'+str(i)+'.shp')
-            list.append(gpd.read_file(r'1993\edges'+str(i)+'.shp'))
-final = pd.concat(list)
+            #i+=1
+            #os.rename(r'1993\edges.shp',r'1993\edges{}.shp'.format(i))
+            #os.rename(r'1993\edges.shx',r'1993\edges{}.shx'.format(i))
+            #os.rename(r'1993\edges.dbf',r'1993\edges{}.dbf'.format(i))
+            #list.append(gpd.read_file(r'1993\edges{}.shp'.format(i)))
+#final = pd.concat(list)
+#print (list)
+#final.to_file(r"1993\final.shp")
             #else:
                 #graph = nx.Graph()
                 #nx.write_shp(graph, output)
